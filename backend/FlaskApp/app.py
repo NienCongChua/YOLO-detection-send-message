@@ -1,55 +1,54 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 
 # Cấu hình kết nối MySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:12042004@localhost/YOLO_detection_send_message'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:12345678@localhost/YOLO_detection_send_message'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'your_secret_key'
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-jwt = JWTManager(app)
 CORS(app)
 
 # Định nghĩa model User
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(256), nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True)
 
 # Khởi tạo database
 with app.app_context():
     db.create_all()
 
-@app.route('/')
-def hello():
-    return 'hello'
-
+# API endpoint để đăng ký
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({"message": "User already exists"}), 400
-    
+    if 'username' not in data or 'email' not in data or 'password' not in data:
+        return jsonify({"message": "Username, email, and password are required"}), 400
     hashed_pw = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    new_user = User(username=data['username'], password=hashed_pw)
+    new_user = User(username=data['username'], email=data['email'], password_hash=hashed_pw)
     db.session.add(new_user)
     db.session.commit()
     return jsonify({"message": "Đăng kí thành công"}), 201
 
+# API endpoint để đăng nhập
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(username=data['username']).first()
-    if user and bcrypt.check_password_hash(user.password, data['password']):
-        access_token = create_access_token(identity=user.username)
-        return jsonify(access_token=access_token)
-    return jsonify({"message": "Không đăng nhập được"}), 401
+    if 'email' not in data or 'password' not in data:
+        return jsonify({"message": "Email and password are required"}), 400
+    user = User.query.filter_by(email=data['email']).first()
+    if user and bcrypt.check_password_hash(user.password_hash, data['password']):
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)

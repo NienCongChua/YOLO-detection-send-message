@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post("http://127.0.0.1:5000/login", {
-        username: email,
+        email: email,
         password: password,
       });
       localStorage.setItem("token", res.data.access_token);
