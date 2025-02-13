@@ -5,6 +5,8 @@ import Login from "./Component/login";
 import Register from "./Component/register";
 import EnterCode from "./Component/enterCode";
 import Navbar from "./Component/navbar";
+import ForgotPassword from "./Component/ForgotPassword";
+import ResetPassword from "./Component/ResetPassword";
 import './App.css';
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/enter-code" element={<EnterCode />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </Router>
   );

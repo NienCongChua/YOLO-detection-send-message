@@ -6,17 +6,26 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from sqlalchemy import or_
+from flask_migrate import Migrate
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from datetime import datetime, timedelta
 import random
 import json
 import base64
+import string
+import os
 
 app = Flask(__name__)
 
 # Cấu hình kết nối MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:12345678@localhost/YOLO_detection_send_message'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_secret_key')
+# Initialize serializer
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 CORS(app)
 
@@ -29,6 +38,8 @@ class User(db.Model):
     verification_code = db.Column(db.String(6), nullable=True)
     is_verified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True)
+    reset_token = db.Column(db.String(100), nullable=True)  # Thêm thuộc tính reset_token
+    reset_token_expiration = db.Column(db.TIMESTAMP, nullable=True)  # Thêm thuộc tính reset_token_expiration
 
 # Khởi tạo database
 with app.app_context():
@@ -57,6 +68,146 @@ def send_verification_email(email, code):
         print(f'Message Id: {message["id"]}')
     except HttpError as error:
         print(f'An error occurred: {error}')
+
+def send_reset_email(email, reset_url):
+    with open('api/gmail.json') as f:
+        creds_data = json.load(f)
+
+    creds = Credentials(
+        None,
+        refresh_token=creds_data['refresh_token'],
+        token_uri=creds_data['installed']['token_uri'],
+        client_id=creds_data['installed']['client_id'],
+        client_secret=creds_data['installed']['client_secret']
+    )
+    service = build('gmail', 'v1', credentials=creds)
+
+    message = {
+        'raw': base64.urlsafe_b64encode(
+            f'To: {email}\nSubject: Password Reset\n\nClick here to reset your password: {reset_url}'.encode()
+        ).decode()
+    }
+
+    try:
+        message = (service.users().messages().send(userId="me", body=message).execute())
+        print(f'Message Id: {message["id"]}')
+    except HttpError as error:
+        print(f'An error occurred: {error}')
+
+
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"message": "Email không tồn tại"}), 404
+
+    # Generate a random reset token
+    reset_token = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+    # Generate a temporary password
+    temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    
+    # Hash the temporary password and store it as reset_token
+    user.reset_token = bcrypt.generate_password_hash(temp_password).decode('utf-8')
+    user.reset_token_expiration = datetime.utcnow() + timedelta(minutes=10)
+    db.session.commit()
+
+    # Generate a token with expiration time
+    token = s.dumps(email, salt='email-reset')
+    reset_url = f"http://localhost:3000/reset-password/{token}"
+
+    # Send the reset email with temporary password
+    send_reset_email(user.email, reset_url, temp_password)
+
+    return jsonify({"message": "Email đặt lại mật khẩu đã được gửi"}), 200
+
+def send_reset_email(email, reset_url, temp_password):
+    with open('api/gmail.json') as f:
+        creds_data = json.load(f)
+
+    creds = Credentials(
+        None,
+        refresh_token=creds_data['refresh_token'],
+        token_uri=creds_data['installed']['token_uri'],
+        client_id=creds_data['installed']['client_id'],
+        client_secret=creds_data['installed']['client_secret']
+    )
+    service = build('gmail', 'v1', credentials=creds)
+
+    email_content = f"""To: {email}
+Subject: Password Reset
+
+Click here to reset your password: {reset_url}
+Your temporary password is: {temp_password}
+
+Please use this temporary password to log in and then change your password immediately for security reasons."""
+
+    message = {
+        'raw': base64.urlsafe_b64encode(email_content.encode()).decode()
+    }
+
+    try:
+        message = (service.users().messages().send(userId="me", body=message).execute())
+        print(f'Message Id: {message["id"]}')
+    except HttpError as error:
+        print(f'An error occurred: {error}')
+
+@app.route('/reset-password/<token>', methods=['GET'])
+def reset_password_get(token):
+    try:
+        email = s.loads(token, salt='email-reset', max_age=600)  # Token valid for 10 minutes
+    except SignatureExpired:
+        return jsonify({"message": "Token đã hết hạn"}), 400
+    except BadSignature:
+        return jsonify({"message": "Token không hợp lệ"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"message": "Người dùng không tồn tại"}), 404
+
+    if not user.reset_token or user.reset_token_expiration < datetime.utcnow():
+        return jsonify({"message": "Reset token is invalid or has already been used"}), 400
+
+    # Đặt lại mật khẩu
+    user.password_hash = user.reset_token
+    user.reset_token = None
+    user.reset_token_expiration = None
+    db.session.commit()
+
+    return jsonify({"message": "Mật khẩu đã được đặt lại thành công"}), 200
+
+
+
+# API: Đặt lại mật khẩu
+@app.route('/reset-password', methods=['POST'])
+def reset_password_post():
+    data = request.get_json()
+    token = data.get('token')
+    new_password = data.get('new_password')
+
+    if not token or not new_password:
+        return jsonify({"message": "Thiếu token hoặc mật khẩu mới"}), 400
+
+    try:
+        email = s.loads(token, salt='email-reset', max_age=600)
+    except SignatureExpired:
+        return jsonify({"message": "Token đã hết hạn"}), 400
+    except BadSignature:
+        return jsonify({"message": "Token không hợp lệ"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"message": "Người dùng không tồn tại"}), 404
+
+    # Đặt lại mật khẩu
+    hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    user.password_hash = hashed_pw
+    db.session.commit()
+
+    return jsonify({"message": "Mật khẩu đã được đặt lại thành công"}), 200
+
 
 # API endpoint để đăng ký
 @app.route('/register', methods=['POST'])
