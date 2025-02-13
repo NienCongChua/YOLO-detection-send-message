@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Home from "./Component/home";
 import Login from "./Component/login";
 import Register from "./Component/register";
+import EnterCode from "./Component/enterCode";
 import Navbar from "./Component/navbar";
 import './App.css';
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/enter-code" element={<EnterCode />} />
       </Routes>
     </Router>
   );

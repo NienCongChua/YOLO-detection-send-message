@@ -17,9 +17,9 @@ CORS(app)
 # Định nghĩa model User
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(60), nullable=False)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True)
 
 # Khởi tạo database
@@ -32,11 +32,18 @@ def register():
     data = request.get_json()
     if 'username' not in data or 'email' not in data or 'password' not in data:
         return jsonify({"message": "Username, email, and password are required"}), 400
+    
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({"message": "Username already exists"}), 400
+    
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({"message": "Email already exists"}), 400
+
     hashed_pw = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     new_user = User(username=data['username'], email=data['email'], password_hash=hashed_pw)
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({"message": "Đăng kí thành công"}), 201
+    return jsonify({"message": "Registration successful"}), 201
 
 # API endpoint để đăng nhập
 @app.route('/login', methods=['POST'])

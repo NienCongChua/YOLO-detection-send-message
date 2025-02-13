@@ -40,7 +40,7 @@ const Register = () => {
       const data = await response.json();
       
       if (response.ok) {
-        navigate("/login");
+        navigate("/enter-code");
       } else {
         setError(data.message || "Registration failed");
       }
@@ -49,74 +49,72 @@ const Register = () => {
     }
   };
 
-  return React.createElement("div", { className: styles.container },
-    React.createElement("div", { className: styles.registerCard },
-      React.createElement("div", { className: styles.header },
-        React.createElement("h1", null, "Create Account"),
-        React.createElement("p", null, "Join us today! Please fill in your details")
-      ),
-      React.createElement("form", { onSubmit: handleSubmit, className: styles.form },
-        React.createElement("div", { className: styles.formGroup },
-          React.createElement("label", { htmlFor: "username" }, "Username"),
-          React.createElement("input", {
-            type: "text",
-            id: "username",
-            name: "username",
-            value: formData.username,
-            onChange: handleChange,
-            required: true,
-            placeholder: "Choose a username"
-          })
-        ),
-        React.createElement("div", { className: styles.formGroup },
-          React.createElement("label", { htmlFor: "email" }, "Email Address"),
-          React.createElement("input", {
-            type: "email",
-            id: "email",
-            name: "email",
-            value: formData.email,
-            onChange: handleChange,
-            required: true,
-            placeholder: "Enter your email"
-          })
-        ),
-        React.createElement("div", { className: styles.formGroup },
-          React.createElement("label", { htmlFor: "password" }, "Password"),
-          React.createElement("input", {
-            type: "password",
-            id: "password",
-            name: "password",
-            value: formData.password,
-            onChange: handleChange,
-            required: true,
-            placeholder: "Create a password"
-          })
-        ),
-        React.createElement("div", { className: styles.formGroup },
-          React.createElement("label", { htmlFor: "confirmPassword" }, "Confirm Password"),
-          React.createElement("input", {
-            type: "password",
-            id: "confirmPassword",
-            name: "confirmPassword",
-            value: formData.confirmPassword,
-            onChange: handleChange,
-            required: true,
-            placeholder: "Confirm your password"
-          })
-        ),
-        error && React.createElement("p", { className: styles.errorMessage }, error),
-        React.createElement("button", {
-          type: "submit",
-          className: styles.submitButton
-        }, "Create Account"),
-        React.createElement("div", { className: styles.login },
-          React.createElement("p", null,
-            "Already have an account? ",
-            React.createElement(Link, { to: "/login" }, "Sign In")
-          )
-        )
-      )
-    )
+  return (
+    <div className={styles.container}>
+      <div className={styles.registerCard}>
+        <div className={styles.header}>
+          <h1>Create Account</h1>
+          <p>Join us today! Please fill in your details</p>
+        </div>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGroup}>
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              placeholder="Choose a username"
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="Enter your email"
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="Create a password"
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              placeholder="Confirm your password"
+            />
+          </div>
+          {error && <p className={styles.errorMessage}>{error}</p>}
+          <button type="submit" className={styles.submitButton}>Create Account</button>
+          <div className={styles.login}>
+            <p>
+              Already have an account? <Link to="/login">Sign In</Link>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
