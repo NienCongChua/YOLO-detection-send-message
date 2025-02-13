@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./EnterCode.module.css";
 
-const EnterCode = () => {
+const EnterCode = ({ email, onClose }) => {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-  const location = useLocation();
-  const email = location.state?.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +18,7 @@ const EnterCode = () => {
 
       const data = await res.json();
       if (res.ok) {
-        navigate("/login");
+        onClose();
       } else {
         setMessage(data.message || "Invalid code!");
       }
@@ -32,7 +28,7 @@ const EnterCode = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.popup}>
       <div className={styles.enterCodeCard}>
         <div className={styles.header}>
           <h1>Enter Code</h1>
@@ -53,6 +49,7 @@ const EnterCode = () => {
           <button type="submit" className={styles.submitButton}>Submit</button>
           {message && <p className={styles.errorMessage}>{message}</p>}
         </form>
+        <button onClick={onClose} className={styles.closeButton}>Close</button>
       </div>
     </div>
   );

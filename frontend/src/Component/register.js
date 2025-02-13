@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import EnterCode from "./enterCode";
 import styles from "./Register.module.css";
 
 const Register = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -11,6 +11,9 @@ const Register = () => {
     confirmPassword: ""
   });
   const [error, setError] = useState("");
+  const [showEnterCode, setShowEnterCode] = useState(false);
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,35 +21,30 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      return;
-    }
-
     try {
-      const response = await fetch("http://localhost:5000/register", {
+      const res = await fetch("http://localhost:5000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password
-        })
+        body: JSON.stringify(formData)
       });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        navigate("/enter-code", { state: { email: formData.email } });
+
+      const data = await res.json();
+      if (res.ok) {
+        setEmail(formData.email);
+        setShowEnterCode(true);
       } else {
         setError(data.message || "Registration failed");
       }
     } catch (err) {
       setError("An error occurred during registration");
     }
+  };
+
+  const handleCloseEnterCode = () => {
+    setShowEnterCode(false);
+    navigate("/login");
   };
 
   return (
@@ -114,6 +112,7 @@ const Register = () => {
           </div>
         </form>
       </div>
+      {showEnterCode && <EnterCode email={email} onClose={handleCloseEnterCode} />}
     </div>
   );
 };
