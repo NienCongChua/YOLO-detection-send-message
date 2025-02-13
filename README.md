@@ -6,7 +6,7 @@ This project is a YOLO-based object detection system that sends messages upon de
 
 1. **Clone the Repository:**
     ```bash
-    git clone https://github.com/yourusername/YOLO-detection-send-message.git
+    git clone https://github.com/NienCongChua/YOLO-detection-send-message.git
     cd YOLO-detection-send-message
     ```
 
@@ -40,6 +40,6 @@ This project is a YOLO-based object detection system that sends messages upon de
 For more detailed instructions, please refer to the documentation within the repository.
 
 <h2 id="contrib">Contributors</h2>
-<a href="https://github.com/Minh-dev-88/YOLO-detection-send-message/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Minh-dev-88/YOLO-detection-send-message" />
+<a href="https://github.com/NienCongChua/YOLO-detection-send-message/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=NienCongChua/YOLO-detection-send-message" />
 </a>
