@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./EnterCode.module.css";
 
 const EnterCode = () => {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,7 +17,7 @@ const EnterCode = () => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ email, code })
       });
 
       const data = await res.json();

@@ -40,7 +40,7 @@ const Register = () => {
       const data = await response.json();
       
       if (response.ok) {
-        navigate("/enter-code");
+        navigate("/enter-code", { state: { email: formData.email } });
       } else {
         setError(data.message || "Registration failed");
       }
