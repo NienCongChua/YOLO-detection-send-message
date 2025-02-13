@@ -4,7 +4,7 @@ import axios from "axios";
 import styles from "./Login.module.css";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -13,7 +13,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post("http://127.0.0.1:5000/login", {
-        email: email,
+        email: identifier.includes('@') ? identifier : undefined,
+        username: !identifier.includes('@') ? identifier : undefined,
         password: password,
       });
       localStorage.setItem("token", res.data.access_token);
@@ -31,14 +32,14 @@ const Login = () => {
       ),
       React.createElement("form", { onSubmit: handleSubmit, className: styles.form },
         React.createElement("div", { className: styles.formGroup },
-          React.createElement("label", { htmlFor: "email" }, "Email Address"),
+          React.createElement("label", { htmlFor: "identifier" }, "Email Address or Username"),
           React.createElement("input", {
-            type: "email",
-            id: "email",
-            value: email,
-            onChange: (e) => setEmail(e.target.value),
+            type: "text",
+            id: "identifier",
+            value: identifier,
+            onChange: (e) => setIdentifier(e.target.value),
             required: true,
-            placeholder: "Enter your email"
+            placeholder: "Enter your email or username"
           })
         ),
         React.createElement("div", { className: styles.formGroup },

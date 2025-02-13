@@ -2,13 +2,13 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-import os
-import random
-import json
-import base64
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from sqlalchemy import or_
+import random
+import json
+import base64
 
 app = Flask(__name__)
 
@@ -104,10 +104,17 @@ def verify_code():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if 'email' not in data or 'password' not in data:
-        return jsonify({"message": "Email and password are required"}), 400
-    user = User.query.filter_by(email=data['email']).first()
-    if user and bcrypt.check_password_hash(user.password_hash, data['password']):
+    if not data or ('email' not in data and 'username' not in data) or 'password' not in data:
+        return jsonify({"message": "Email/Username and password are required"}), 400
+    
+    # Check if email or username is provided
+    email = data.get('email')
+    username = data.get('username')
+    password = data.get('password')
+    
+    user = User.query.filter(or_(User.email == email, User.username == username)).first()
+    
+    if user and bcrypt.check_password_hash(user.password_hash, password):
         if user.is_verified:
             return jsonify({"message": "Login successful"}), 200
         else:
