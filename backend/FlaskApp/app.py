@@ -69,7 +69,7 @@ def send_verification_email(email, code):
     except HttpError as error:
         print(f'An error occurred: {error}')
 
-def send_reset_email(email, reset_url):
+def send_reset_email(email, reset_url, temp_password):
     with open('api/gmail.json') as f:
         creds_data = json.load(f)
 
@@ -82,10 +82,16 @@ def send_reset_email(email, reset_url):
     )
     service = build('gmail', 'v1', credentials=creds)
 
+    email_content = f"""To: {email}
+Subject: Password Reset
+
+Click here to reset your password: <a href="{reset_url}">click here</a>
+Your temporary password is: {temp_password}
+
+Please use this temporary password to log in and then change your password immediately for security reasons."""
+
     message = {
-        'raw': base64.urlsafe_b64encode(
-            f'To: {email}\nSubject: Password Reset\n\nClick here to reset your password: {reset_url}'.encode()
-        ).decode()
+        'raw': base64.urlsafe_b64encode(email_content.encode()).decode()
     }
 
     try:
@@ -122,37 +128,6 @@ def forgot_password():
     send_reset_email(user.email, reset_url, temp_password)
 
     return jsonify({"message": "Email đặt lại mật khẩu đã được gửi"}), 200
-
-def send_reset_email(email, reset_url, temp_password):
-    with open('api/gmail.json') as f:
-        creds_data = json.load(f)
-
-    creds = Credentials(
-        None,
-        refresh_token=creds_data['refresh_token'],
-        token_uri=creds_data['installed']['token_uri'],
-        client_id=creds_data['installed']['client_id'],
-        client_secret=creds_data['installed']['client_secret']
-    )
-    service = build('gmail', 'v1', credentials=creds)
-
-    email_content = f"""To: {email}
-Subject: Password Reset
-
-Click here to reset your password: {reset_url}
-Your temporary password is: {temp_password}
-
-Please use this temporary password to log in and then change your password immediately for security reasons."""
-
-    message = {
-        'raw': base64.urlsafe_b64encode(email_content.encode()).decode()
-    }
-
-    try:
-        message = (service.users().messages().send(userId="me", body=message).execute())
-        print(f'Message Id: {message["id"]}')
-    except HttpError as error:
-        print(f'An error occurred: {error}')
 
 @app.route('/reset-password/<token>', methods=['GET'])
 def reset_password_get(token):
@@ -272,6 +247,27 @@ def login():
             return jsonify({"message": "Account not verified"}), 401
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+@app.route('/change-password', methods=['POST'])
+def change_password():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+
+    if not username or not email or not current_password or not new_password:
+        return jsonify({"message": "Thiếu username, email, mật khẩu hiện tại hoặc mật khẩu mới"}), 400
+
+    user = User.query.filter_by(username=username, email=email).first()
+    if not user or not bcrypt.check_password_hash(user.password_hash, current_password):
+        return jsonify({"message": "Username, email hoặc mật khẩu hiện tại không đúng"}), 400
+
+    hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    user.password_hash = hashed_pw
+    db.session.commit()
+
+    return jsonify({"message": "Mật khẩu đã được thay đổi thành công"}), 200
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

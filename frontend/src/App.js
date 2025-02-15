@@ -7,6 +7,7 @@ import EnterCode from "./Component/enterCode";
 import Navbar from "./Component/navbar";
 import ForgotPassword from "./Component/ForgotPassword";
 import ResetPassword from "./Component/ResetPassword";
+import ChangePassword from "./Component/changePassword";
 import './App.css';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/enter-code" element={<EnterCode />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </Router>
   );
