@@ -11,6 +11,18 @@ const ChangePassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (newPassword !== confirmNewPassword) {
+      setMessage("Passwords do not match");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setMessage("Password must be at least 6 characters long");
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setMessage("New password cannot be the same as the current password");
+      return;
+    }
     try {
       const res = await fetch("http://localhost:5000/change-password", {
         method: "POST",

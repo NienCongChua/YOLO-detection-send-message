@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import EnterCode from "./enterCode";
 import styles from "./Register.module.css";
 
-const Register = () => {
+const Register = ({ setCanAccessEnterCode }) => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -34,6 +34,8 @@ const Register = () => {
       if (res.ok) {
         setEmail(formData.email);
         setShowEnterCode(true);
+        setCanAccessEnterCode(true);
+        navigate("/enter-code");
       } else {
         setError(data.message || "Registration failed");
       }

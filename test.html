@@ -1,0 +1,254 @@
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Đăng Nhập</title>
+    <link rel="shortcut icon" href="https://i.imgur.com/ay8av0y.png">
+    <link rel="stylesheet" href="https://4ggiare.com/src/css/vendor.min.css">
+    <link rel="stylesheet" href="https://4ggiare.com/src/css/theme6.css?v=1.0">
+    <link as="style" rel="stylesheet preload"
+        href="https://4ggiare.com/src/css/inter.css?family=Inter:wght@400;600&amp;display=swap">
+    <link as="style" rel="preload" href="https://4ggiare.com/src/css/default.css" data-hs-appearance="default">
+    <link as="style" rel="preload" href="https://4ggiare.com/src/css/dark.css" data-hs-appearance="dark">
+    <link as="style" rel="stylesheet preload" href="https://4ggiare.com/src/css/fontawesomeall.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style data-hs-appearance-onload-styles>
+        * {
+            transition: unset !important;
+        }
+
+        body {
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        window.hs_config = {
+            "autopath": "@@autopath",
+            "deleteLine": "hs-builder:delete",
+            "deleteLine:build": "hs-builder:build-delete",
+            "deleteLine:dist": "hs-builder:dist-delete",
+            "previewMode": false,
+            "startPath": "/",
+            "vars": {
+                "themeFont": "https://4ggiare.com/src/css/inter.css?family=Inter:wght@400;600&display=swap",
+                "version": "?v=1.0"
+            },
+            "layoutBuilder": {
+                "extend": {
+                    "switcherSupport": true
+                },
+                "header": {
+                    "layoutMode": "default",
+                    "containerMode": "container-fluid"
+                },
+                "sidebarLayout": "default"
+            },
+            "themeAppearance": {
+                "layoutSkin": "default",
+                "sidebarSkin": "default",
+                "styles": {
+                    "colors": {
+                        "primary": "#377dff",
+                        "transparent": "transparent",
+                        "white": "#fff",
+                        "dark": "132144",
+                        "gray": {
+                            "100": "#f9fafc",
+                            "900": "#1e2022"
+                        }
+                    },
+                    "font": "Inter"
+                }
+            }
+        }
+    </script>
+</head>
+<style>
+    @media (min-width: 768px) {
+        .pad {
+            margin-left: 120px
+        }
+    }
+
+    @media (max-width: 768px) {
+        .pad {
+            margin-left: 100px
+        }
+    }
+
+    @media (max-width: 480px) {
+        .pad {
+            margin-left: 80px
+        }
+    }
+</style>
+
+<body>
+    <script src="https://4ggiare.com/src/js/hs.theme-appearance.js"></script>
+    <main id="content" role="main" class="main">
+        <div class="position-fixed top-0 end-0 start-0 bg-img-start" style="height: 32rem; ">
+            <div class="shape shape-bottom zi-1">
+                <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                    viewBox="0 0 1921 273">
+                    <polygon fill="#fff" points="0,273 1921,273 1921,0 " />
+                </svg>
+            </div>
+        </div>
+
+        <div class="container py-5 py-sm-7">
+            <a class="d-flex justify-content-center mb-8" href="/">
+                <img class="zi-2" src="https://i.imgur.com/yKC0ZEk.png" data-hs-theme-appearance="default"
+                    style="min-width: 7rem; max-width: 13rem;">
+                <img class="zi-2" src="https://i.imgur.com/yKC0ZEk.png" data-hs-theme-appearance="dark"
+                    style="min-width: 7rem; max-width: 13rem;">
+            </a>
+
+            <div class="mx-auto" style="max-width: 30rem;">
+                <div class="card card-lg mb-5">
+                    <div class="card-body  shadow-lg rounded">
+
+                        <div class="text-center">
+                            <div class="mb-5">
+                                <h1 class="display-5">Đăng Nhập</h1>
+                            </div>
+                        </div>
+                        <form id="formsubmit" class="js-validate needs-validation" method="post" role="form">
+                            <input type="hidden" name="action" value="login" readonly>
+                            <div class="mb-4">
+                                <label class="form-label" for="email">Email</label>
+                                <div class="input-group  shadow-lg rounded" data-hs-validation-validate-class>
+                                    <span class="input-group-text"><i class="fa-duotone fa-envelope"></i></span>
+                                    <input type="email" class="form-control form-control-lg" name="email" id="email"
+                                        tabindex="1" placeholder="example@gmail.com" required>
+                                </div>
+                                <span class="invalid-feedback">Vui Lòng Nhập Địa Chỉ Email.</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label w-100" for="signupSrPassword" tabindex="0">
+                                    <span class="d-flex justify-content-between align-items-center">
+                                        <span>Mật Khẩu</span>
+                                        <a class="form-label-link mb-0 text-danger"
+                                            href="https://4ggiare.com/client/reset-password">Quên Mật
+                                            Khẩu?</a>
+                                    </span>
+                                </label>
+
+                                <div class="input-group  shadow-lg rounded" data-hs-validation-validate-class>
+                                    <a id="changePassTarget" class="input-group-text">
+                                        <i id="changePassIcon" class="bi-eye"></i>
+                                    </a>
+                                    <input type="password" class="js-toggle-password form-control form-control-lg"
+                                        name="password" id="password" placeholder="Vui Lòng Nhập Mật Khẩu" required>
+
+                                </div>
+                                <span class="invalid-feedback">Vui Lòng Nhập Mật Khẩu.</span>
+                            </div>
+
+                            
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-dark btn-lg" id="sign-in">
+
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Nhập
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <p class="text-dark">Chưa Có Tài Khoản？ <a class='link text-info'
+                                        href='https://4ggiare.com/client/register'>
+                                        Đăng Ký</a> </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade " id="LoginSuccess" tabindex="-1" aria-labelledby="LoginSuccess" role="dialog"
+            data-bs-backdrop="static" data-bs-keyboard="false" aria-modal="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-top-cover bg-white text-center" style="border-radius: 0.6875rem !important;">
+
+
+
+                        <div class="popup" style="margin: 40px 15px;">
+                            <img src="https://4ggiare.com/src/img/success.png" style="width: 80px;" alt="">
+                            <h3 style="margin: 20px">Đăng Nhập Thành Công</h3>
+
+
+
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var changePassTarget = document.getElementById('changePassTarget');
+            var passwordInput = document.getElementById('password');
+            var changePassIcon = document.getElementById('changePassIcon');
+
+            changePassTarget.addEventListener('click', function () {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    changePassIcon.className = 'bi bi-eye-slash';
+                } else {
+                    passwordInput.type = 'password';
+                    changePassIcon.className = 'bi bi-eye';
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#formsubmit').on("submit", function (e) {
+                $('#sign-in').html('<i class="fa fa-spinner fa-spin"></i> Đang Xử Lý...').prop(
+                    'disabled',
+                    true);
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: "/ajaxs/client/login.php",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (respone) {
+                        if (respone.status == 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành Công',
+                                text: respone.msg,
+                                timer: 2000
+                            });
+                            setTimeout("location.href = 'https://4ggiare.com/';", 1000);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Thất Bại',
+                                text: respone.msg,
+                            });
+                        }
+                        $('#sign-in').html('Đăng Nhập').prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+</body>

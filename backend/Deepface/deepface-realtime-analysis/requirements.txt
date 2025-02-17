@@ -1,0 +1,5 @@
+DeepFace==0.0.68
+opencv-python
+numpy
+tensorflow
+keras

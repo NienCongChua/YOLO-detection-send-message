@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ResetPassword.module.css";
 
 const ResetPassword = () => {
   const { token } = useParams();
   const [message, setMessage] = useState("");
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const resetPassword = async () => {
@@ -13,15 +14,20 @@ const ResetPassword = () => {
           method: "GET"
         });
 
-        const data = await res.json();
-        setMessage(data.message);
+        if (res.ok) { // Kiểm tra trạng thái phản hồi
+          setMessage("Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ.");
+          setTimeout(() => navigate("/login"), 3000); // Chuyển hướng sau 3 giây
+      } else {
+          const data = await res.json();
+          setMessage(data.message || "Đặt lại mật khẩu thất bại.");
+      }
       } catch (err) {
         setMessage("An error occurred while resetting the password");
       }
     };
 
     resetPassword();
-  }, [token]);
+  }, [token, navigate]);
 
   return (
     <div className={styles.container}>
